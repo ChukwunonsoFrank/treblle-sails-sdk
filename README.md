@@ -118,7 +118,7 @@ __N.B__: Ensure ```treblle``` comes before ```router``` in the order stack. This
  */
 
 // Import the SDK function
-const TreblleMiddleware = require('../treblle-sails-sdk/index')
+const TreblleMiddleware = require('@octanelabs/treblle-sails-sdk')
 
 
 
