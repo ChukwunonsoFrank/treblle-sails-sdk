@@ -1,7 +1,7 @@
 const os = require('os')
 
 module.exports = function (maskedPayloadData, credentials, metadata) {
-    const { version } = require('../../package.json')
+    const { version } = require('../package.json')
 
     const payload = {
         api_key: credentials.apiKey || process.env.apiKey,
