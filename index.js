@@ -25,6 +25,5 @@ module.exports = function (req, res) {
     const requestResponsePayload = generateRequestAndResponsePayload(req, res, startTime, responseBody)
     const maskedRequestResponsePayload = iterateJSON(requestResponsePayload, undefined, mask)
     const transportPayload = generateTransportPayload(maskedRequestResponsePayload, credentials, requestMetadata)
-    console.log(JSON.stringify(transportPayload))
     sendDashboardData(credentials.apiKey, transportPayload, debug)
 }

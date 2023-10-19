@@ -1,6 +1,6 @@
 {
   "name": "@octanelabs/treblle-sails-sdk",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Treblle SDK for the Sails.js Framework",
   "main": "index.js",
   "scripts": {
