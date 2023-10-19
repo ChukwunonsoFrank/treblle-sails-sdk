@@ -68,9 +68,142 @@ This means data masking is super fast and happens on a programming level before 
 3. [Setup the SDK](#install-the-SDK) for your platform.
 
 ### Install the SDK
+To install the Treblle SDK for the Sails.js Framework, run the command below in your project directory via the terminal
+```
+npm i @octanelabs/treblle-sails-sdk
+```
 
-<!-- Installation instruction for the platform goes here -->
-> See the [docs]() for this SDK to learn more.
+Next, open your ```local.js``` config file and add a new ```treblle``` object. This will contain your project's credentials: API Key and Project ID, which will be used to hook up your project's data to your Treblle dashboard.
+
+```js
+  /**
+ * Local environment settings
+ *
+ * Use this file to specify configuration settings for use while developing
+ * the app on your personal system.
+ *
+ * For more information, check out:
+ * https://sailsjs.com/docs/concepts/configuration/the-local-js-file
+ */
+
+module.exports = {
+
+  // Any configuration settings may be overridden below, whether it's built-in Sails
+  // options or custom configuration specifically for your app (e.g. Stripe, Sendgrid, etc.)
+
+  treblle: {
+    credentials: {
+      apiKey: '<YOUR_TREBLLE_API_KEY>',
+      projectId: '<YOUR_TREBLLE_PROJECT_ID>',
+    }
+  }
+
+};
+```
+
+### Enabling the SDK on your project
+To enable the SDK, you need to import and register the middleware in your project's middleware stack. You can find this stack in your ```http.js``` config file's ```order``` array.
+__N.B__: Ensure ```treblle``` comes before ```router``` in the order stack. This allows the ```req``` and ```res``` to be set so the Treblle SDK can access it later.
+
+```js
+/**
+ * HTTP Server Settings
+ * (sails.config.http)
+ *
+ * Configuration for the underlying HTTP server in Sails.
+ * (for additional recommended settings, see `config/env/production.js`)
+ *
+ * For more information on configuration, check out:
+ * https://sailsjs.com/config/http
+ */
+
+// Import the SDK function
+const TreblleMiddleware = require('../treblle-sails-sdk/index')
+
+
+
+module.exports.http = {
+
+  /****************************************************************************
+  *                                                                           *
+  * Sails/Express middleware to run for every HTTP request.                   *
+  * (Only applies to HTTP requests -- not virtual WebSocket requests.)        *
+  *                                                                           *
+  * https://sailsjs.com/documentation/concepts/middleware                     *
+  *                                                                           *
+  ****************************************************************************/
+
+  middleware: {
+
+    /***************************************************************************
+    *                                                                          *
+    * The order in which middleware should be run for HTTP requests.           *
+    * (This Sails app's routes are handled by the "router" middleware below.)  *
+    *                                                                          *
+    ***************************************************************************/
+
+    order: [
+      'cookieParser',
+      'session',
+      'bodyParser',
+      'compress',
+      'poweredBy',
+      'treblle', // Add the middleware key to the stack
+      'router',
+      'www',
+      'favicon',
+    ],
+
+
+    /***************************************************************************
+    *                                                                          *
+    * The body parser that will handle incoming multipart HTTP requests.       *
+    *                                                                          *
+    * https://sailsjs.com/config/http#?customizing-the-body-parser             *
+    *                                                                          *
+    ***************************************************************************/
+
+  //  Register the middleware function
+    treblle: (() => {
+      return function (request, response, next) {
+        TreblleMiddleware(request, response)
+        next()
+      }
+    })()
+
+  },
+
+};
+
+```
+
+And that's it! Your project has been hooked with your Treblle account and you can now enjoy the many benefits of API observability and monitoring tooling that Treblle provides.
+
+## Custom Masked Fields
+The SDK provides the ability to mask custom fields you do not want to send to the Treblle dashboard. You need to open the ```custom.js``` config file and add a ```treblle``` object which contains the fields you want to mask.
+
+```js
+  treblle: {
+    mask: ['field1', 'field2']
+  }
+```
+
+This will intelligently scan your request, response and headers for these fields and mask them for you.
+
+### Securing API Keys
+The SDK also masks any API keys that may be contained in your API request and masks them for you as well. For example, if the API key you supplied in your authorization header is "Bearer abcd123456", it becomes "Bearer **********" and reflects the exact length of your API key.
+
+### Enabling Debug Mode
+Debug mode is useful for debugging the data your are sending to Treblle in case you encounter errors sending data to your dashboard. To enable it, add a ```debug: true``` option to the ```custom.js``` config file as shown below:
+
+```js
+  treblle: {
+    mask: ['field1', 'field2'],
+    debug: true
+  }
+```
+
+To disable debug mode, set ```debug``` to ```false```.
 
 ## Available SDKs
 
